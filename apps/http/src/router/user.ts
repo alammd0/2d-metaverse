@@ -2,8 +2,9 @@ import { Router } from "express";
 
 const router =  Router();
 
-router.post("/metadata", async (req, res) => {
-    try {
+// 1. Here update Meta data 
+router.post("/meta-data" , async (req, res) => {
+    try{
 
     }
     catch(error){
@@ -14,4 +15,17 @@ router.post("/metadata", async (req, res) => {
     }
 })
 
-router.get("/metadata/bulk", async (req, res) => {})
+// 2. get meta data by using userId
+router.get("/meta-data/bulk", async (req, res) => {
+    try{
+
+    }
+    catch(error){
+        res.status(400).json({
+            error
+        });
+        return;
+    }
+})
+
+export default router;
