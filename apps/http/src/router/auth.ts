@@ -48,7 +48,7 @@ authRouter.post("/signup", async (req, res) => {
 
         res.status(200).json({
             message : "User Created",
-            userid : user.id
+            userId : user.id
         })
     }
     catch(error){

@@ -35,8 +35,7 @@ adminRouter.post("/element", async (req, res) => {
     catch(error){
         res.status(403).json({
             error
-        })
-        return
+        });
     }
 })
 

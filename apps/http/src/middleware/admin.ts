@@ -26,7 +26,7 @@ export const adminAuthMiddleware = async (req: Request, res: Response, next: Nex
         next();
     }
     catch(error){
-        res.status(40).json({
+        res.status(401).json({
             error
         })
     }

@@ -45,6 +45,23 @@ userRouter.put("/meta-data", userAuthMiddleware, async (req, res) => {
 
         // const { avatarId } = parsedData.data;
 
+        console.log(req.userId);
+        console.log(parsedData.data.avatarId);
+
+        const avatar = await prisma.avatar.findUnique({
+            where : {
+                id : parsedData.data.avatarId
+            }
+        })
+
+        if(!avatar){
+            res.status(400).json({
+                message : "Avatar not found"
+            })
+            return;
+        }
+
+
         await prisma.user.update({
             where : {
                 id : req.userId
@@ -59,7 +76,7 @@ userRouter.put("/meta-data", userAuthMiddleware, async (req, res) => {
         })
     }
     catch(error){
-        res.status(400).json({
+        res.status(403).json({
            message: "Internal server error"
         });
         return;
@@ -82,7 +99,17 @@ userRouter.get("/meta-data/bulk", async (req, res) => {
                 avatar : true,
                 id : true
             }
-        })
+        });
+
+        // console.log(metaData);
+
+        res.status(200).json({
+            avatars : metaData.map(m => ({
+                userId : m.id,
+                avatarId : m.avatar?.id,
+                imageUrl : m.avatar?.imageUrl
+            }))
+        });
     }
     catch(error){
         res.status(400).json({

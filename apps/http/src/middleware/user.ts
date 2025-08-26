@@ -13,8 +13,9 @@ export const userAuthMiddleware = async (req: Request, res: Response, next: Next
         return;
     }
     try{
-        const decoded = jwt.verify(token, JWT_PASSWORD) as { role: string, userId : string };
-        req.userId = decoded.userId;
+        const decoded = jwt.verify(token, JWT_PASSWORD) as { role: string, id : string };
+        console.log("Decoded Token - ", decoded);
+        req.userId = decoded.id;
         next();
     }
     catch(error){
