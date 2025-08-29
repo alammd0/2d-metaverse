@@ -43,6 +43,23 @@ export const UpdateElementSchema = z.object({
     imageUrl : z.string(),
 })
 
+export const CreateSpaceSchema = z.object({
+    name : z.string(),
+    dimensions : z.string().regex(/^[0-9]{1,4}x[0-9]{1,4}$/),
+    mapId : z.string().optional()
+})
+
+export const DeleteSpaceSchema = z.object({
+    spaceId : z.string()
+})
+
+export const AddElementSchema = z.object({
+    elementId : z.string(),
+    x : z.number(),
+    y : z.number()
+})
+
+
 declare global {
     namespace Express {
       export interface Request {
