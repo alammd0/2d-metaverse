@@ -21,7 +21,7 @@ spaceRouter.post("/create", userAuthMiddleware, async (req, res) => {
         // console.log(name, dimensions, mapId);
 
         if(!mapId){
-            console.log("Reach here - 01");
+            // console.log("Reach here - 01");
             const space = await prisma.space.create({
                 data : {
                     name : name,
@@ -31,9 +31,9 @@ spaceRouter.post("/create", userAuthMiddleware, async (req, res) => {
                 }
             });
 
-            console.log("Space Created With Map Id - ", space);
+            // console.log("Space Created With Map Id - ", space);
 
-            console.log("Reach here - 02");
+            // console.log("Reach here - 02");
 
             res.status(200).json({
                 message : "Space created",
@@ -42,7 +42,7 @@ spaceRouter.post("/create", userAuthMiddleware, async (req, res) => {
             return;
         }
 
-        console.log("Reach here - 03");
+        // console.log("Reach here - 03");
         const map = await prisma.map.findFirst({
             where : {
                 id : mapId
@@ -54,7 +54,7 @@ spaceRouter.post("/create", userAuthMiddleware, async (req, res) => {
             }
         });
 
-        console.log("Reach here - 04");
+        // console.log("Reach here - 04");
 
         if(!map){
             res.status(400).json({
@@ -63,7 +63,7 @@ spaceRouter.post("/create", userAuthMiddleware, async (req, res) => {
             return;
         }
 
-        console.log("Reach here - 05");
+        // console.log("Reach here - 05");
 
         let space = await prisma.$transaction( async () => {
             console.log("Reach here - 06");
@@ -76,7 +76,7 @@ spaceRouter.post("/create", userAuthMiddleware, async (req, res) => {
                 }
             });
 
-            console.log("Reach here - 07");
+            // console.log("Reach here - 07");
             await prisma.spaceElements.createMany({
                 data : map.mapElements.map(e => ({
                     spaceId : space.id,
@@ -85,11 +85,11 @@ spaceRouter.post("/create", userAuthMiddleware, async (req, res) => {
                     y : e.y!
                 }))
             })
-            console.log("Reach here - 08");
+            // console.log("Reach here - 08");
             return space;
         })
 
-        console.log(space);
+        // console.log(space);
 
         return res.status(200).json({
             message : "Space created",
@@ -108,7 +108,7 @@ spaceRouter.post("/create", userAuthMiddleware, async (req, res) => {
 // 2. delete space Element from DB
 spaceRouter.delete("/element", userAuthMiddleware, async (req, res) => {
     try{
-        // console.log("Hello")
+        // console.log("Reach here - 1000")
         const parsedData = DeleteSpaceSchema.safeParse(req.body);
         console.log(parsedData);
         if(!parsedData.success){
@@ -118,9 +118,7 @@ spaceRouter.delete("/element", userAuthMiddleware, async (req, res) => {
             return;
         }
 
-        console.log(parsedData.data.spaceId);
-        console.log(req.userId);
-
+        // console.log("Reach here - 1001")
         const spaceElements = await prisma.spaceElements.findFirst({
             where : {
                 id : parsedData.data.spaceId
@@ -130,6 +128,7 @@ spaceRouter.delete("/element", userAuthMiddleware, async (req, res) => {
             }
         })
 
+        // console.log("Reach here - 10002")
         if(!spaceElements?.space.creatorId || spaceElements.space.creatorId !== req.userId){
             res.status(403).json({
                 message : "You are not allowed to delete this space"
@@ -137,11 +136,15 @@ spaceRouter.delete("/element", userAuthMiddleware, async (req, res) => {
             return;
         }
 
+        // console.log("Heer reach 10009");
+
         await prisma.spaceElements.deleteMany({
             where : {
                 spaceId : parsedData.data.spaceId
             }
         });
+    
+        // console.log("hee reach 10009");
 
         res.status(200).json({
             message : "Element deleted"
@@ -158,8 +161,8 @@ spaceRouter.delete("/element", userAuthMiddleware, async (req, res) => {
 // 3. here delete space from DB
 spaceRouter.delete("/:spaceId", userAuthMiddleware, async (req, res) => {
     try{
-        console.log("Reach here in delete space");
-        console.log(req.params.spaceId);
+        // console.log("Reach here in delete space");
+        // console.log(req.params.spaceId);
         const space = await prisma.space.findUnique({
             where : {
                 id : req.params.spaceId
@@ -168,7 +171,7 @@ spaceRouter.delete("/:spaceId", userAuthMiddleware, async (req, res) => {
                 creatorId : true
             }
         });
-        console.log(space);
+        // console.log(space);
 
         if(!space){
             res.status(404).json({
@@ -184,7 +187,7 @@ spaceRouter.delete("/:spaceId", userAuthMiddleware, async (req, res) => {
             return;
         }
 
-        await prisma.space.delete({
+        const deleteSpace = await prisma.space.delete({
             where : {
                 id : req.params.spaceId
             }
@@ -218,11 +221,14 @@ spaceRouter.get("/all", userAuthMiddleware, async (req, res) => {
             return;
         }
 
+        // console.log("if Space is true then All space are there - ", space);
+
         res.status(200).json({
             spaces : space.map(x => ({
                 spaceId : x.id,
                 name : x.name,
-                dimensions : x.width + "x" + x.height
+                dimensions : x.width + "x" + x.height,
+                
             }))
         })
         return;
@@ -237,13 +243,13 @@ spaceRouter.get("/all", userAuthMiddleware, async (req, res) => {
 // 5. here create space element 
 spaceRouter.post("/element", userAuthMiddleware, async (req, res) => {
     try{
-        const parsedData = AddElementSchema.safeParse(req.body);
-        if(!parsedData.success){
-            res.status(400).json({
-                message : parsedData.error.message
-            })
-            return;
-        }
+        // const parsedData = AddElementSchema.safeParse(req.body);
+        // if(!parsedData.success){
+        //     res.status(400).json({
+        //         message : parsedData.error.message
+        //     })
+        //     return;
+        // }
 
         const space = await prisma.space.findUnique({
             where : {
@@ -255,6 +261,8 @@ spaceRouter.post("/element", userAuthMiddleware, async (req, res) => {
                 height : true,
             }
         });
+
+        console.log("Pase data - ", space);
 
         if(req.body.x < 0 || req.body.y < 0 || req.body.x > space?.width! || req.body.y > space?.height!){
             res.status(400).json({
@@ -270,7 +278,7 @@ spaceRouter.post("/element", userAuthMiddleware, async (req, res) => {
             return;
         }
 
-        await prisma.spaceElements.create({
+        const result = await prisma.spaceElements.create({
            data : {
                spaceId : req.body.spaceId,
                elementId : req.body.elementId,
@@ -278,6 +286,8 @@ spaceRouter.post("/element", userAuthMiddleware, async (req, res) => {
                y : req.body.y
            }
         });
+
+        console.log(result);
 
         res.status(200).json({  
             message : "Element added"
@@ -294,16 +304,18 @@ spaceRouter.post("/element", userAuthMiddleware, async (req, res) => {
 // 6. here find space using spaceId
 spaceRouter.get("/:spaceId", async (req, res) => {
     try{
+        console.log("here show spaceId", req.params.spaceId);
         const space = await prisma.space.findUnique({
             where : {
                 id : req.params.spaceId
             },
+
             include : {
-                elements : {
-                    include : {
-                        element : true
+                    elements : {
+                        include : {
+                            element : true 
+                        }
                     }
-                }
             }
         });
 
@@ -314,7 +326,13 @@ spaceRouter.get("/:spaceId", async (req, res) => {
             return;
         }
 
-        console.log(space);
+        console.log(space)
+
+        // console.log(space);
+
+        // // console.log(space);
+
+        // // console.log("Here Space id is correct - I", space);
 
         res.status(200).json({
             spaceId : space.id,
@@ -333,6 +351,35 @@ spaceRouter.get("/:spaceId", async (req, res) => {
                 y : e.y
             }))
         })
+
+        // const spaceId = req.params.spaceId;
+
+        // // 1) Re-fetch the space (explicit stringify to avoid weird console output)
+        // const space = await prisma.space.findUnique({
+        //         where: { id: spaceId },
+        //         include: { elements: { include: { element: true } } }
+        // });
+        // console.log("space (full):", JSON.parse(JSON.stringify(space, null, 2)));
+
+        // // 2) Count join rows
+        // const joinCount = await prisma.spaceElements.count({ where: { spaceId } });
+        // console.log("spaceElements count:", joinCount);
+
+        // // 3) Show join rows with their elements
+        // const spaceElements = await prisma.spaceElements.findMany({
+        //     where: { spaceId },
+        //     include: { element: true }
+        // });
+        // console.log("spaceElements rows:", JSON.parse(JSON.stringify(spaceElements, null, 2)));
+
+        // // 4) Show some Element rows to ensure elements exist
+        // const someElements = acwait prisma.element.findMany({ take: 10 });
+        // console.log("some element rows (first 10):", JSON.parse(JSON.stringify(someElements, null, 2)));
+
+        // res.json({
+        //     message : "Some Check"
+        // })
+
     }
     catch(error){
         res.status(400).json({
